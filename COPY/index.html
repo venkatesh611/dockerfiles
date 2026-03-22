@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SwiftHaul — Vehicle Transportation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161a22;
+      --surface2: #1e2430;
+      --accent: #f4a21e;
+      --accent2: #e05c1a;
+      --text: #e8eaf0;
+      --muted: #7a8499;
+      --border: #2a3040;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(13,15,20,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: #000;
+      padding: .55rem 1.4rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--accent2); color: #fff; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      padding: 5rem 3rem;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(244,162,30,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(224,92,26,0.08) 0%, transparent 60%);
+    }
+    /* Road stripe decorations */
+    .road-lines {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 55%;
+      background:
+        linear-gradient(90deg, var(--bg) 0%, transparent 15%),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0%, transparent 48%,
+          rgba(244,162,30,0.05) 48%, rgba(244,162,30,0.05) 52%,
+          transparent 52%
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .truck-illustration {
+      font-size: 11rem;
+      opacity: 0.18;
+      filter: drop-shadow(0 0 40px rgba(244,162,30,0.3));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 600px; }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(244,162,30,0.15);
+      border: 1px solid rgba(244,162,30,0.4);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: .35rem 1rem;
+      border-radius: 2px;
+      margin-bottom: 1.4rem;
+      animation: fadeUp .6s ease both;
+    }
+    .hero h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(3.2rem, 6vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+      margin-bottom: 1.2rem;
+      animation: fadeUp .6s ease .1s both;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 460px;
+      animation: fadeUp .6s ease .2s both;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      animation: fadeUp .6s ease .3s both;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      padding: .85rem 2rem;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--accent2); color: #fff; transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      padding: .85rem 2rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      padding: 2.2rem 2rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: .3rem;
+    }
+
+    /* ── BOOKING FORM ── */
+    .booking-section {
+      padding: 5rem 3rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header {
+      margin-bottom: 2.5rem;
+    }
+    .section-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .booking-form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr) auto;
+      gap: 1rem;
+      align-items: end;
+      background: var(--surface2);
+      padding: 2rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .form-group { display: flex; flex-direction: column; gap: .5rem; }
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+    .form-group select,
+    .form-group input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .75rem 1rem;
+      border-radius: 4px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .2s;
+      appearance: none;
+    }
+    .form-group select:focus,
+    .form-group input:focus { border-color: var(--accent); }
+
+    /* ── SERVICES ── */
+    .services {
+      padding: 5rem 3rem;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: border-color .25s, transform .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover { border-color: rgba(244,162,30,0.3); transform: translateY(-4px); }
+    .service-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .service-card h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: .6rem;
+    }
+    .service-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+    .service-badge {
+      display: inline-block;
+      margin-top: 1rem;
+      background: rgba(244,162,30,0.1);
+      border: 1px solid rgba(244,162,30,0.3);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: .25rem .7rem;
+      border-radius: 2px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .hiw {
+      padding: 5rem 3rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 2.2rem;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+      opacity: 0.3;
+    }
+    .step { text-align: center; position: relative; }
+    .step-num {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--accent);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+    }
+    .step h4 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    .step p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── VEHICLE TYPES ── */
+    .vehicles {
+      padding: 5rem 3rem;
+    }
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+    .vehicle-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .vehicle-card:hover, .vehicle-card.active {
+      background: rgba(244,162,30,0.1);
+      border-color: var(--accent);
+    }
+    .vehicle-card .v-icon { font-size: 2.8rem; margin-bottom: .8rem; }
+    .vehicle-card h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .vehicle-card p { font-size: 0.78rem; color: var(--muted); margin-top: .3rem; }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 5rem 3rem;
+      background: linear-gradient(135deg, rgba(244,162,30,0.15), rgba(224,92,26,0.1));
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    .cta-section p { color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    footer h5 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+    footer ul { list-style: none; }
+    footer ul li { margin-bottom: .6rem; }
+    footer ul li a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: color .2s; }
+    footer ul li a:hover { color: var(--text); }
+    .footer-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-top: .5rem; }
+    .footer-bottom {
+      text-align: center;
+      padding: 1.5rem 3rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive basics */
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .booking-form { grid-template-columns: 1fr 1fr; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .vehicle-grid { grid-template-columns: 1fr 1fr; }
+      footer { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 3rem 1.5rem; }
+      .hero h1 { font-size: 3rem; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .booking-form { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
+      .vehicle-grid { grid-template-columns: 1fr 1fr; }
+      footer { grid-template-columns: 1fr; }
+      .booking-section, .services, .hiw, .vehicles, .cta-section { padding: 3rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Swift<span>Haul</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Services</a></li>
+    <li><a href="#">How It Works</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Track</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <a href="#booking" class="nav-cta">Get a Quote</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="road-lines">
+    <div class="truck-illustration">🚛</div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-tag">⚡ Trusted by 50,000+ customers</div>
+    <h1>Move Your <em>Vehicle</em> Anywhere</h1>
+    <p>Nationwide vehicle transportation — cars, bikes, trucks, and more. Fully insured, door-to-door delivery with real-time tracking.</p>
+    <div class="hero-btns">
+      <a href="#booking" class="btn-primary">Book Transport</a>
+      <a href="#how" class="btn-outline">How It Works</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stat">
+    <div class="stat-num">50K+</div>
+    <div class="stat-label">Vehicles Delivered</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">500+</div>
+    <div class="stat-label">Carrier Partners</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">48</div>
+    <div class="stat-label">States Covered</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">4.9★</div>
+    <div class="stat-label">Customer Rating</div>
+  </div>
+</section>
+
+<!-- BOOKING FORM -->
+<section class="booking-section" id="booking">
+  <div class="section-header">
+    <div class="section-tag">Instant Quote</div>
+    <h2 class="section-title">Book Your Transport</h2>
+  </div>
+  <div class="booking-form">
+    <div class="form-group">
+      <label>Pickup Location</label>
+      <input type="text" placeholder="City, State or ZIP"/>
+    </div>
+    <div class="form-group">
+      <label>Delivery Location</label>
+      <input type="text" placeholder="City, State or ZIP"/>
+    </div>
+    <div class="form-group">
+      <label>Vehicle Type</label>
+      <select>
+        <option>Select Vehicle Type</option>
+        <option>Sedan / Coupe</option>
+        <option>SUV / Crossover</option>
+        <option>Pickup Truck</option>
+        <option>Motorcycle</option>
+        <option>Van / Minivan</option>
+        <option>Luxury / Exotic</option>
+        <option>Heavy Equipment</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="padding:.75rem 1.8rem;white-space:nowrap;">Get Quote →</button>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services">
+  <div class="section-header">
+    <div class="section-tag">What We Offer</div>
+    <h2 class="section-title">Transport Services</h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🚗</div>
+      <h3>Open Car Transport</h3>
+      <p>The most affordable way to ship your vehicle. Safe, exposed carrier transport for standard and everyday cars.</p>
+      <span class="service-badge">Most Popular</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🚐</div>
+      <h3>Enclosed Transport</h3>
+      <p>Premium protection for luxury, classic, and exotic vehicles. Fully enclosed trailer shields against weather and road debris.</p>
+      <span class="service-badge">Best Protection</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏍️</div>
+      <h3>Motorcycle Shipping</h3>
+      <p>Specialised crating and soft-tie systems keep your bike secure throughout the entire journey.</p>
+      <span class="service-badge">Specialists</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🚚</div>
+      <h3>Heavy Equipment</h3>
+      <p>Flatbed and lowboy solutions for construction machinery, farm equipment, and oversized loads.</p>
+      <span class="service-badge">Commercial</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">⚡</div>
+      <h3>Express Delivery</h3>
+      <p>Need it fast? Our expedited service guarantees pickup within 24 hours and priority routing.</p>
+      <span class="service-badge">Rush</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🌐</div>
+      <h3>International Shipping</h3>
+      <p>Door-to-port and port-to-port services with customs paperwork handled end-to-end.</p>
+      <span class="service-badge">Worldwide</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw" id="how">
+  <div class="section-header">
+    <div class="section-tag">Process</div>
+    <h2 class="section-title">How It Works</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Get an Instant Quote</h4>
+      <p>Enter your pickup and delivery locations, select your vehicle type, and receive a price instantly.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Schedule Pickup</h4>
+      <p>Choose a convenient date and our carrier will arrive at your doorstep on time.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Track in Real Time</h4>
+      <p>Monitor your vehicle's journey 24/7 via our live tracking portal and SMS updates.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>Receive Your Vehicle</h4>
+      <p>Your vehicle arrives at the destination. Inspect, sign, and you're done.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VEHICLE TYPES -->
+<section class="vehicles">
+  <div class="section-header">
+    <div class="section-tag">We Transport</div>
+    <h2 class="section-title">Any Vehicle, Any Size</h2>
+  </div>
+  <div class="vehicle-grid">
+    <div class="vehicle-card active" onclick="setActive(this)">
+      <div class="v-icon">🚗</div>
+      <h4>Car</h4>
+      <p>Sedan, coupe, hatchback</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🚙</div>
+      <h4>SUV / Truck</h4>
+      <p>4WD, pickup, crossover</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🏍️</div>
+      <h4>Motorcycle</h4>
+      <p>Cruiser, sport, touring</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🚌</div>
+      <h4>Bus / Van</h4>
+      <p>Commercial, minibus, RV</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🚜</div>
+      <h4>Farm Equipment</h4>
+      <p>Tractors, harvesters</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🏗️</div>
+      <h4>Heavy Machinery</h4>
+      <p>Excavators, cranes</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">🏎️</div>
+      <h4>Luxury / Exotic</h4>
+      <p>Supercar, classic, EV</p>
+    </div>
+    <div class="vehicle-card" onclick="setActive(this)">
+      <div class="v-icon">⛵</div>
+      <h4>Boat / Watercraft</h4>
+      <p>Jet ski, yacht, pontoon</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to Ship Your Vehicle?</h2>
+  <p>Get a free, no-obligation quote in under 60 seconds.</p>
+  <a href="#booking" class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem;">Start Your Quote →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="logo" style="margin-bottom:.8rem;">Swift<span style="color:var(--accent)">Haul</span></div>
+    <p class="footer-desc">Professional vehicle transportation across the nation. Fast, safe, insured — every time.</p>
+  </div>
+  <div>
+    <h5>Services</h5>
+    <ul>
+      <li><a href="#">Open Transport</a></li>
+      <li><a href="#">Enclosed Transport</a></li>
+      <li><a href="#">Motorcycle Shipping</a></li>
+      <li><a href="#">Heavy Equipment</a></li>
+      <li><a href="#">International</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Company</h5>
+    <ul>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Careers</a></li>
+      <li><a href="#">Partners</a></li>
+      <li><a href="#">Press</a></li>
+      <li><a href="#">Blog</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Support</h5>
+    <ul>
+      <li><a href="#">Track Shipment</a></li>
+      <li><a href="#">FAQ</a></li>
+      <li><a href="#">Contact Us</a></li>
+      <li><a href="#">Insurance Info</a></li>
+      <li><a href="#">Claims</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">© 2026 SwiftHaul Transportation Inc. · All Rights Reserved · Privacy Policy · Terms of Service</div>
+
+<script>
+  function setActive(card) {
+    document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+  }
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
